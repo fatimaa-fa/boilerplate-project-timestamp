@@ -30,3 +30,32 @@ app.get("/api/hello", function (req, res) {
 var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+
+// New route to handle date conversion and formatting
+app.get("/api/:date?", function (req, res) {
+  let dateString = req.params.date;
+  
+  // If the date parameter is empty, use the current date
+  if (!dateString) {
+    dateString = Date.now();
+  }
+
+  // Check if dateString is a valid Unix timestamp or a valid date string
+  let date;
+  if (!isNaN(dateString)) {
+    date = new Date(parseInt(dateString)); // Convert Unix timestamp
+  } else {
+    date = new Date(dateString); // Try parsing the string as a date
+  }
+
+  // Check if the date is valid
+  if (date.toString() === 'Invalid Date') {
+    return res.json({ error: "Invalid Date" });
+  }
+
+  // If the date is valid, return the Unix timestamp and UTC format
+  res.json({
+    unix: date.getTime(),
+    utc: date.toUTCString()
+  });
+});
